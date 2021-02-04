@@ -98,6 +98,9 @@ io.on('connection', function (socket) {
 
     socket.on('lancementChrono', function (data) {
         if (map.get(data.room).gameStart) {
+            map.forEach((values, keys) => {
+                values.personnes.score = 0
+            })
             let imagesCategorie;
             map.get(data.room).categorie=data.categorie;
             if (map.get(data.room).categorie == "TOUTES") {
