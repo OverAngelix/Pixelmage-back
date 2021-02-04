@@ -60,7 +60,7 @@ io.on('connection', function (socket) {
 
     socket.on('connexionServeur', function (data) {
         if (!map.has(data.room)) {
-            map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", });
+            map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", imagesDejaSelectionnees: [] });
             socket.join(data.room);
             data.host = true;
             map.get(data.room).personnes = [...map.get(data.room).personnes, data];
@@ -104,6 +104,7 @@ io.on('connection', function (socket) {
             map.forEach((values, keys) => {
                 values.personnes.score = 0
             })
+            io.sockets.in(data.room).emit('miseAJourPersonnes', map.get(data.room).personnes);
             let imagesCategorie;
             map.get(data.room).categorie = data.categorie;
             if (map.get(data.room).categorie == "TOUTES") {
@@ -111,8 +112,12 @@ io.on('connection', function (socket) {
             } else {
                 imagesCategorie = data.images.filter(e => e.categorie == map.get(data.room).categorie);
             }
+            do{
             map.get(data.room).imageselected = Math.floor(Math.random() * imagesCategorie.length)
             map.get(data.room).imageselected = data.images.findIndex(e => e.image == imagesCategorie[map.get(data.room).imageselected].image);
+            }while(map.get(data.room).imagesDejaSelectionnees.findIndex(e=>e==map.get(data.room).imageselected)!=-1);
+            map.get(data.room).imagesDejaSelectionnees.push(map.get(data.room).imageselected);
+            
             io.sockets.in(data.room).emit('partyBegin');
             let interval = chrono(data.room);
             map.get(data.room).interval = interval;
@@ -135,8 +140,11 @@ io.on('connection', function (socket) {
                 } else {
                     imagesCategorie = data.images.filter(e => e.categorie == map.get(data.room).categorie);
                 }
+                do{
                 map.get(data.room).imageselected = Math.floor(Math.random() * imagesCategorie.length)
                 map.get(data.room).imageselected = data.images.findIndex(e => e.image == imagesCategorie[map.get(data.room).imageselected].image);
+                }while(map.get(data.room).imagesDejaSelectionnees.findIndex(e=>e==map.get(data.room).imageselected)!=-1);
+                map.get(data.room).imagesDejaSelectionnees.push(map.get(data.room).imageselected);
                 reponseImage = "";
                 io.sockets.in(data.room).emit('RAZ');
                 for (let i = 0; i < map.get(data.room).personnes.length; i++) {
