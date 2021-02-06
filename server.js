@@ -25,12 +25,12 @@ io.on('connection', function (socket) {
 
     socket.on('SEND_MESSAGE', function (data) {
         if (
-      (data.message.toLowerCase() ==
-        map.get(data.room).reponseImage.toLowerCase() &&
+      (data.message.toLowerCase().latinize() ==
+        map.get(data.room).reponseImage.toLowerCase().latinize() &&
         map.get(data.room).imageprogress < timeRound) ||
       (map
         .get(data.room)
-        .synonyms.some((e) => e.toLowerCase() == data.message.toLowerCase()) &&
+        .synonyms.some((e) => e.toLowerCase().latinize() == data.message.toLowerCase().latinize()) &&
         map.get(data.room).imageprogress < timeRound)
     ) {
             message = data.user + " a trouvé la reponse"
