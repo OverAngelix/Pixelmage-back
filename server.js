@@ -24,7 +24,15 @@ io.on('connection', function (socket) {
     // console.log(socket.id)
 
     socket.on('SEND_MESSAGE', function (data) {
-        if (data.message.toLowerCase().latinize() == map.get(data.room).reponseImage.toLowerCase().latinize() && map.get(data.room).imageprogress < timeRound) {
+        if (
+      (data.message.toLowerCase() ==
+        map.get(data.room).reponseImage.toLowerCase() &&
+        map.get(data.room).imageprogress < timeRound) ||
+      (map
+        .get(data.room)
+        .synonyms.some((e) => e.toLowerCase() == data.message.toLowerCase()) &&
+        map.get(data.room).imageprogress < timeRound)
+    ) {
             message = data.user + " a trouvé la reponse"
             io.sockets.in(data.room).emit('MESSAGE', { message: message });
             let index = map.get(data.room).personnes.findIndex(e => e.user == data.user);
@@ -127,6 +135,7 @@ io.on('connection', function (socket) {
 
     socket.on('reponseImage', function (data) {
         map.get(data.room).reponseImage = data.reponseImage
+        map.get(data.room).synonyms = data.synonyms;
     });
 
     socket.on('newRound', function (data) {
