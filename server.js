@@ -70,6 +70,7 @@ io.on('connection', function (socket) {
         if (!map.has(data.room)) {
             map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", imagesDejaSelectionnees: [] });
             socket.join(data.room);
+            data.host = true;
             map.get(data.room).personnes = [...map.get(data.room).personnes, data];
             io.emit('envoiSalonsCrees', getSalons());
             io.sockets.in(data.room).emit('accessAuthorized');
