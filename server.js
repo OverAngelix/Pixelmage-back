@@ -138,6 +138,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('newRound', function (data) {
+        if (data.host) {
             if (map.get(data.room).nbround < maxround) {
                 let imagesCategorie;
                 map.get(data.room).nbround++;
@@ -163,6 +164,7 @@ io.on('connection', function (socket) {
                 map.get(data.room).imageprogress = 0;
                 map.get(data.room).nbround = 1;
                 io.sockets.in(data.room).emit('partyFinish');
+        }
         }
     });
 
