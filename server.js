@@ -24,7 +24,15 @@ io.on('connection', function (socket) {
     // console.log(socket.id)
 
     socket.on('SEND_MESSAGE', function (data) {
-        if (data.message.toLowerCase().latinize() == map.get(data.room).reponseImage.toLowerCase().latinize() && map.get(data.room).imageprogress < timeRound) {
+        if (
+      (data.message.toLowerCase().latinize() ==
+        map.get(data.room).reponseImage.toLowerCase().latinize() &&
+        map.get(data.room).imageprogress < timeRound) ||
+      (map
+        .get(data.room)
+        .synonyms.some((e) => e.toLowerCase().latinize() == data.message.toLowerCase().latinize()) &&
+        map.get(data.room).imageprogress < timeRound)
+    ) {
             message = data.user + " a trouvé la reponse"
             io.sockets.in(data.room).emit('MESSAGE', { message: message });
             let index = map.get(data.room).personnes.findIndex(e => e.user == data.user);
@@ -62,7 +70,6 @@ io.on('connection', function (socket) {
         if (!map.has(data.room)) {
             map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", imagesDejaSelectionnees: [] });
             socket.join(data.room);
-            data.host = true;
             map.get(data.room).personnes = [...map.get(data.room).personnes, data];
             io.emit('envoiSalonsCrees', getSalons());
             io.sockets.in(data.room).emit('accessAuthorized');
@@ -127,6 +134,7 @@ io.on('connection', function (socket) {
 
     socket.on('reponseImage', function (data) {
         map.get(data.room).reponseImage = data.reponseImage
+        map.get(data.room).synonyms = data.synonyms;
     });
 
     socket.on('newRound', function (data) {
@@ -156,7 +164,7 @@ io.on('connection', function (socket) {
                 map.get(data.room).imageprogress = 0;
                 map.get(data.room).nbround = 1;
                 io.sockets.in(data.room).emit('partyFinish');
-            }
+        }
         }
     });
 
