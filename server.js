@@ -185,6 +185,10 @@ io.on('connection', function (socket) {
 
     socket.on("envoiMaxRound",(data)=>{
         map.get(data.room).maxRound=data.maxRound;
+    });
+
+    socket.on("majPartieCommencee1",(data)=>{
+        io.sockets.in(data.room).emit("majPartieCommencee2");
     })
 });
 
