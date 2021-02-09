@@ -54,7 +54,7 @@ io.on('connection', function (socket) {
                 io.sockets.in(data.room).emit('miseAJourRepondus', data);
             }
 
-            io.emit('miseAJourScore', map.get(data.room).personnes);
+            io.sockets.in(data.room).emit('miseAJourScore', map.get(data.room).personnes);
             //si tout le monde a rep, on passe au suivantbqqq
             if (map.get(data.room).personnes.length == map.get(data.room).personnes.filter(e => e.dejaRepondu == true).length) {
                 io.sockets.in(data.room).emit('toutLeMondeATrouve');
