@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const maxround = 10;
 const timeRound = 60;
 
 require("string_score");
@@ -77,7 +76,7 @@ io.on('connection', function (socket) {
 
     socket.on('connexionServeur', function (data) {
         if (!map.has(data.room)) {
-            map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", imagesDejaSelectionnees: [] });
+            map.set(data.room, { personnes: [], chat: [], imageprogress: 0, imageselected: 0, reponseImage: "", gameStart: true, nbround: 1, categorie: "", imagesDejaSelectionnees: []});
             socket.join(data.room);
             data.host = true;
             map.get(data.room).personnes = [...map.get(data.room).personnes, data];
@@ -120,6 +119,7 @@ io.on('connection', function (socket) {
         if (map.get(data.room).gameStart) {
             for (let i=0;i<map.get(data.room).personnes.length;i++){
                 map.get(data.room).personnes[i].score = 0;
+                map.get(data.room).personnes[i].dejaRepondu=false;
             }
             io.sockets.in(data.room).emit('miseAJourPersonnes', map.get(data.room).personnes);
             let imagesCategorie;
@@ -149,7 +149,7 @@ io.on('connection', function (socket) {
 
     socket.on('newRound', function (data) {
         if (data.host) {
-            if (map.get(data.room).nbround < maxround) {
+            if (map.get(data.room).nbround < map.get(data.room).maxRound) {
                 let imagesCategorie;
                 map.get(data.room).nbround++;
                 map.get(data.room).imageprogress = 0;
@@ -174,6 +174,7 @@ io.on('connection', function (socket) {
                 map.get(data.room).imageprogress = 0;
                 map.get(data.room).nbround = 1;
                 io.sockets.in(data.room).emit('partyFinish');
+                io.sockets.in(data.room).emit('afficherLeaderboard', map.get(data.room).personnes);
         }
         }
     });
@@ -181,6 +182,10 @@ io.on('connection', function (socket) {
     socket.on("getSalonsCrees", function (data) {
         io.emit("envoiSalonsCrees", getSalons());
     });
+
+    socket.on("envoiMaxRound",(data)=>{
+        map.get(data.room).maxRound=data.maxRound;
+    })
 });
 
 function chrono(room) {
