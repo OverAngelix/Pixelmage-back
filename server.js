@@ -25,6 +25,7 @@ io.on('connection', function (socket) {
     // console.log(socket.id)
 
     socket.on('SEND_MESSAGE', function (data) {
+        if (!map.has(data.room)) return
         const msgData = data.message.toLowerCase().latinize();
         const reponse = map.get(data.room).reponseImage.toLowerCase().latinize();
         const synonyms = map.get(data.room).synonyms;
@@ -101,6 +102,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('deconnexionServeur', function (data) {
+        if (!map.has(data.room)) return
         const indexPersonne = map.get(data.room).personnes.findIndex(e => e.user == data.user);
         if (indexPersonne > -1) {
             map.get(data.room).personnes.splice(indexPersonne, 1);
