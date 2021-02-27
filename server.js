@@ -22,8 +22,6 @@ const io = require('socket.io')(server, {
 });
 
 io.on('connection', function (socket) {
-    // console.log(socket.id)
-
     socket.on('SEND_MESSAGE', function (data) {
         if (!map.has(data.room)) return
         const msgData = data.message.toLowerCase().latinize();
@@ -190,7 +188,11 @@ io.on('connection', function (socket) {
     });
 
     socket.on("majPartieCommencee1",(data)=>{
-        io.sockets.in(data.room).emit("majPartieCommencee2");
+        map.get(data.room).categorie=data.categorie;
+        io.sockets.in(data.room).emit("majPartieCommencee2",{
+            categorie: map.get(data.room).categorie
+        });
+
     })
 });
 
